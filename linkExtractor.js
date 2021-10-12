@@ -4,7 +4,7 @@ import path from 'path'
 
 const __dirname = path.resolve()
 const encoding = 'utf8'
-const baseUrl = 'https://technored.ru/'
+const baseUrl = ''
 
 export const getLinksToCats = () => {
     const htmlData = fs.readFileSync(`${__dirname}/savedHtml/technored.ru0`, encoding)
@@ -15,7 +15,7 @@ export const getLinksToCats = () => {
         let href = $(linkRaw).attr('href').split('/').filter(el => el)
         href.length === 2 ? links.push(baseUrl + href.reduce((prev, cur) => prev + "/" + cur)) : null
     });
-    return links.map(link => ({url: link, isProduct: false}))
+    return links.map(link => ({url: link + "/", isProduct: false}))
 }
 
 export const getLinksToProducts = () => {
@@ -27,15 +27,15 @@ export const getLinksToProducts = () => {
         if (file.slice(-1, -4) !== '.ru0' && file !== 'products') {
             htmlData = fs.readFileSync(`${__dirname}/savedHtml/${file}`, encoding)
             const $ = cheerio.load(htmlData)
-            let linksRaw = $('div.productColText a.name')
+            let linksRaw = $('div.productTable div.productColText a.name')
             $(linksRaw).each((i, linkRaw) => {
                 let href = $(linkRaw).attr('href')
-                href && href !== '#' ? links.push(baseUrl + href) : null
+                href && href !== '#' ? links.push({url: baseUrl + href.slice(1), isProduct: true}) : null
             });
         }
     }
     let files = fs.readdirSync(`${__dirname}/savedHtml/`)
     files.forEach(forFile)
-    return links.map(link => ({url: link, isProduct: true}))
+    return links
 }
 
