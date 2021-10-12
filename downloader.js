@@ -1,9 +1,8 @@
 import puppeteer from 'puppeteer';
 import fs from 'fs'
 import cheerio from 'cheerio'
-import axios from 'axios'
 import path from 'path'
-import iconv from 'iconv'
+
 
 export const mainPageUrl = "https://technored.ru/";
 const __dirname = path.resolve()
@@ -35,7 +34,7 @@ export const sessionWriter = async (urls) => {
 }
 const downloadHtml = async (browser, url) => {
     console.log(url)
-    // if (url.split(".").slice(-1)[0] !== "html") {
+    
     const page = await browser.newPage();
     await page.setViewport({ width: 1400, height: 900})
     await page.goto(url);
@@ -45,8 +44,6 @@ const downloadHtml = async (browser, url) => {
     let $ = cheerio.load(newContent)
     
     while ($('div.bx-pagination ul li.bx-pag-next a').html()) {
-        // if output is paginated, toggle the items/page or just append html
-        // select#selectCountElements option - toggle as an alternative
         let [response] = await Promise.all([
             page.waitForNavigation({waitUntil: "networkidle0"}),
             page.click('div.bx-pagination ul li.bx-pag-next'),
@@ -56,22 +53,6 @@ const downloadHtml = async (browser, url) => {
         $ = cheerio.load(newContent)
     }
     return content
-    // } else {
-    //     await sleep(Math.ceil(Math.random()*2000))
-    //     // pure html download, pre-rendered
-    //     // set encoding [x]
-    //     axios.interceptors.response.use(response => {
-    //         const data = Buffer.from(response.data, 'binary');
-    //         response.data = iconv.Iconv('windows-1251', 'utf8').convert(data).toString()
-    //         return response;
-    //       })
-    //     let content = [(await axios.get(url, {
-    //         responseType: 'arraybuffer'
-    //     })).data]
-
-    //     return content
-    // }
-    
 };
 
 // USAGE EXAMPLE
